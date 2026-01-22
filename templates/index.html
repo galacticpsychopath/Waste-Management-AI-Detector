@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECOTOUNSI-AI Control Deck</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>ECOTOUNSI<span class="highlight">AI</span></h1>
+            <div class="status-indicator">
+                <span class="status-dot"></span>
+                <span id="robot-status">INITIALIZING...</span>
+            </div>
+        </header>
+
+        <main class="grid-layout">
+            <!-- Camera Section -->
+            <section class="camera-panel glass-panel">
+                <div class="panel-header">
+                    <h2><span class="icon">📷</span> LIVE FEED</h2>
+                    <button id="toggle-btn" class="btn-secondary">STANDBY</button>
+                </div>
+                <div class="video-container">
+                    <img src="{{ url_for('video_feed') }}" alt="Camera Feed" id="camera-feed">
+                    <div class="overlay">
+                        <div id="detection-label">SEARCHING...</div>
+                    </div>
+                </div>
+                <button id="analyze-btn" class="btn-primary">SNAP & ANALYZE</button>
+            </section>
+
+            <!-- Dashboard Section -->
+            <aside class="sidebar">
+                <!-- Stats -->
+                <div class="stats-panel glass-panel">
+                    <h2><span class="icon">📊</span> STATISTICS</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Items Found</h3>
+                            <div class="number" id="stat-found">0</div>
+                        </div>
+                        <div class="stat-card highlight-green">
+                            <h3>Recycled</h3>
+                            <div class="number" id="stat-recycled">0</div>
+                        </div>
+                        <div class="stat-card highlight-red">
+                            <h3>Toxic/Trash</h3>
+                            <div class="number" id="stat-toxic">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chatbot -->
+                <div class="chat-panel glass-panel">
+                    <div class="panel-header">
+                        <h2><span class="icon">🤖</span> ADVISOR</h2>
+                    </div>
+                    <div class="chat-log" id="chat-log">
+                        <div class="message bot">
+                            System initialized. Ready to identify objects.
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Ask manually about an object...">
+                        <button id="send-btn">➤</button>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
