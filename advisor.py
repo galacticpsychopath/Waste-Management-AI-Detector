@@ -4,7 +4,7 @@ def get_advice(object_name):
     """
     Queries Ollama to get recyclability advice and a DIY project for the given object.
     """
-    # You can change the model to 'mistral', 'llama2', etc. if 'llama3' is not pulled.
+    # You can change the model
     model_name = 'gpt-oss:120b-cloud' 
     
     prompt = (
