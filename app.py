@@ -5,8 +5,17 @@ import advisor
 app = Flask(__name__)
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+def dashboard():
+    return render_template('dashboard.html')
+@app.route('/live_feed')
+def live_feed():
+    return render_template('live_feed.html')
+@app.route('/faults')
+def faults():
+    return render_template('faults.html')
+@app.route('/analytics')
+def analytics():
+    return render_template('analytics.html')
 
 def gen(camera):
     while True:
@@ -25,7 +34,8 @@ def get_stats():
     return jsonify({
         "stats": camera_manager.stats,
         "status": camera_manager.robot_status,
-        "detected": camera_manager.detected_object
+        "detected": camera_manager.detected_object,
+        "battery": round(camera_manager.battery_level, 1)
     })
 
 @app.route('/api/toggle')
@@ -51,6 +61,18 @@ def chat():
         response = str(e)
 
     return jsonify({"response": response})
+
+@app.route('/api/faults')
+def get_faults():
+    faults = camera_manager.get_faults()
+    return jsonify(faults)
+
+@app.route('/api/analytics')
+def get_analytics():
+    return jsonify({
+        "stats": camera_manager.stats,
+        "history": camera_manager.hourly_history
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)

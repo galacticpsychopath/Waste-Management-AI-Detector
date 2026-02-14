@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - ECOTOUNSI-AI{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-slate-800">Dashboard</h1>
+    <p class="text-slate-500">Real-time overview of your waste collection robot</p>
+</div>
+
+<!-- Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+    <!-- Robot Status Card -->
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative">
+        <div class="flex justify-between items-start mb-4">
+            <h3 class="font-semibold text-slate-700">Robot Status</h3>
+            <span class="text-slate-400">🤖</span>
+        </div>
+
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+            <div>
+                <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                    Active
+                </span>
+                <p class="text-xs text-slate-500 mt-1">Uptime: 4h 32m</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+            <p class="text-xs text-slate-400 uppercase font-semibold mb-1">Current Task</p>
+            <p class="text-sm font-medium text-slate-700">Patrolling Zone B — collecting waste</p>
+        </div>
+    </div>
+
+    <!-- Battery Card -->
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative">
+        <div class="flex justify-between items-start mb-4">
+            <h3 class="font-semibold text-slate-700">Battery</h3>
+            <span class="text-slate-400">🔋</span>
+        </div>
+
+        <div class="mb-2">
+            <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-bold text-slate-800" id="battery-text">--%</span>
+                <span class="text-xs text-slate-500" id="battery-status-text">Checking...</span>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-100 rounded-full h-2.5 mb-4 overflow-hidden">
+            <div id="battery-bar" class="bg-emerald-500 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+
+        <p class="text-xs text-slate-500">Est. runtime: 3h 15m</p>
+    </div>
+
+</div>
+
+<!-- Second Row Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+    <!-- Waste Detected -->
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                </path>
+            </svg>
+        </div>
+        <div>
+            <p class="text-xs text-slate-500">Waste Detected</p>
+            <p class="text-2xl font-bold text-slate-800">47 <span
+                    class="text-sm font-normal text-slate-400">today</span></p>
+        </div>
+    </div>
+
+    <!-- Distance Traveled -->
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                </path>
+            </svg>
+        </div>
+        <div>
+            <p class="text-xs text-slate-500">Distance Traveled</p>
+            <p class="text-2xl font-bold text-slate-800">1.8 <span class="text-sm font-normal text-slate-400">km</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Active Faults -->
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                </path>
+            </svg>
+        </div>
+        <div>
+            <p class="text-xs text-slate-500">Active Faults</p>
+            <p class="text-2xl font-bold text-slate-800">2</p>
+        </div>
+    </div>
+
+    <!-- Bin Fill Level -->
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+        </div>
+        <div>
+            <p class="text-xs text-slate-500">Bin Fill Level</p>
+            <p class="text-2xl font-bold text-slate-800">64<span class="text-sm font-bold">%</span></p>
+        </div>
+    </div>
+
+</div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function updateDashboard() {
+        try {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+
+            // Update Battery
+            if (data.battery !== undefined) {
+                const level = data.battery;
+                const battText = document.getElementById('battery-text');
+                const battBar = document.getElementById('battery-bar');
+                const battStatus = document.getElementById('battery-status-text');
+
+                battText.innerText = level + '%';
+                battBar.style.width = level + '%';
+
+                // Dynamic Color & Status
+                battBar.className = 'h-2.5 rounded-full transition-all duration-500';
+                if (level > 50) {
+                    battBar.classList.add('bg-emerald-500');
+                    battStatus.innerText = "Optimal";
+                } else if (level > 20) {
+                    battBar.classList.add('bg-yellow-500');
+                    battStatus.innerText = "Draining";
+                } else {
+                    battBar.classList.add('bg-red-500');
+                    battStatus.innerText = "Low Battery";
+                }
+            }
+        } catch (error) {
+            console.error("Dashboard update failed:", error);
+        }
+    }
+
+    // Poll every 2 seconds
+    setInterval(updateDashboard, 2000);
+    // Initial call
+    updateDashboard();
+</script>
+{% endblock %}

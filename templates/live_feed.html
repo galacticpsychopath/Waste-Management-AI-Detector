@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Live Feed - ECOTOUNSI-AI{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-800">Live Detection Feed</h1>
+    <p class="text-slate-500">AI waste detection camera output and logs</p>
+</div>
+
+<!-- Main Layout: Camera Feed (Left) + Sidebar (Right) -->
+<div class="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-140px)] h-auto">
+
+    <!-- Left Column: Camera Feed -->
+    <div class="flex-1 flex flex-col gap-4">
+
+        <!-- Camera View -->
+        <div class="bg-black rounded-xl overflow-hidden relative shadow-lg flex-1 border border-slate-300">
+            <!-- The Camera Feed Image -->
+            <img src="{{ url_for('video_feed') }}" class="w-full h-full object-contain bg-black">
+
+            <!-- Live Indicator -->
+            <div class="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">
+                ● LIVE
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Right Column: Chatbot & Logs -->
+    <div class="w-full lg:w-96 flex flex-col gap-4">
+
+        <!-- Chatbot Section -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col flex-1 overflow-hidden">
+            <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <h3 class="font-bold text-slate-700">AI Advisor</h3>
+                <span class="text-emerald-500 text-xs font-medium bg-emerald-50 px-2 py-1 rounded-full">Online</span>
+            </div>
+
+            <!-- Chat Log -->
+            <div id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/50">
+                <!-- Bot Welcome Message -->
+                <div class="flex items-start gap-2.5">
+                    <div
+                        class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-xs font-bold">
+                        AI</div>
+                    <div
+                        class="flex flex-col w-full max-w-[320px] leading-1.5 p-3 border-gray-200 bg-white rounded-e-xl rounded-es-xl shadow-sm">
+                        <p class="text-sm font-normal text-gray-900">Hello! I'm your Recycling Advisor. I can help
+                            identify items and suggest how to dispose of them.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="p-3 border-t border-slate-100 bg-white">
+                <form id="chat-form" class="flex gap-2">
+                    <input type="text" id="user-input"
+                        class="flex-1 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5"
+                        placeholder="Ask about an object..." required>
+                    <button type="submit"
+                        class="text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:outline-none focus:ring-emerald-300 font-medium rounded-lg text-sm px-4 py-2">
+                        Send
+                    </button>
+                    <!-- Snap & Analyze Button -->
+                    <button type="button" id="snap-btn"
+                        class="text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-2">
+                        📷
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Simple Chatbot Script
+    const chatForm = document.getElementById('chat-form');
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+    const snapBtn = document.getElementById('snap-btn');
+
+    // Function to add a message to the chat
+    function addMessage(text, sender) {
+        const div = document.createElement('div');
+        div.className = sender === 'user' ? 'flex items-start gap-2.5 justify-end' : 'flex items-start gap-2.5';
+
+        const content = sender === 'user'
+            ? `<div class="flex flex-col w-full max-w-[320px] leading-1.5 p-3 border-emerald-200 bg-emerald-600 text-white rounded-s-xl rounded-ee-xl shadow-sm"><p class="text-sm font-normal">${text}</p></div>`
+            : `<div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-xs font-bold">AI</div><div class="flex flex-col w-full max-w-[320px] leading-1.5 p-3 border-gray-200 bg-white rounded-e-xl rounded-es-xl shadow-sm"><p class="text-sm font-normal text-gray-900">${text}</p></div>`;
+
+        div.innerHTML = content;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Handle Chat Submit
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const message = userInput.value.trim();
+        if (!message) return;
+
+        addMessage(message, 'user');
+        userInput.value = '';
+
+        // Call Backend API
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            });
+            const data = await response.json();
+            addMessage(data.response, 'bot');
+        } catch (error) {
+            addMessage("Sorry, I couldn't connect to the server.", 'bot');
+        }
+    });
+
+    // Handle Snap & Analyze
+    snapBtn.addEventListener('click', async () => {
+        addMessage("Analyzing current view...", 'bot');
+        try {
+            const response = await fetch('/api/analyze', { method: 'POST' });
+            const data = await response.json();
+            addMessage(data.advice, 'bot');
+        } catch (error) {
+            addMessage("Failed to analyze image.", 'bot');
+        }
+    });
+
+
+
+    // Handle Camera Toggle
+    const toggleBtn = document.getElementById('camera-toggle-btn');
+    toggleBtn.addEventListener('click', async () => {
+        try {
+            const res = await fetch('/api/toggle');
+            const data = await res.json();
+
+            // Update UI based on new status
+            if (data.status === 'Active') {
+                toggleBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg><span>Turn Camera Off</span>`;
+                toggleBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+                toggleBtn.classList.add('bg-slate-800', 'hover:bg-slate-700');
+            } else {
+                toggleBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg><span>Turn Camera On</span>`;
+                toggleBtn.classList.remove('bg-slate-800', 'hover:bg-slate-700');
+                toggleBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+            }
+        } catch (e) {
+            console.error("Toggle failed", e);
+        }
+    });
+
+    // Poll for stats and real-time updates
+    setInterval(async () => {
+        try {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+
+            // 1. Update Counts
+            if (data.stats) {
+                document.getElementById('count-plastic').textContent = data.stats.Plastic || 0;
+                document.getElementById('count-metal').textContent = data.stats.Metal || 0;
+                document.getElementById('count-organic').textContent = data.stats.Organic || 0;
+                document.getElementById('count-paper').textContent = data.stats.Paper || 0;
+            }
+
+            // 2. Visual Feedback for Active Detection
+            // Reset all highlights
+            const cards = ['plastic', 'metal', 'organic', 'paper'];
+            cards.forEach(type => {
+                const card = document.getElementById(`card-${type}`);
+                if (card) {
+                    card.classList.remove('ring-4', 'ring-emerald-400', 'scale-105');
+                    card.classList.add('border-slate-200');
+                }
+            });
+
+            // Highlight active if detected
+            // We need to know the category of the detected object to highlight the right card.
+            // Since the backend only sends the object name (e.g. 'bottle'), we map it here or just check stats changes.
+            // A simpler way: The backend sends 'detected'. We can add a simple mapping here too or request category from backend.
+            // For now, let's just highlight if the count *changed* or simplistic mapping.
+            // Actually, let's just Map client-side for visual flair since it's faster.
+            const obj = data.detected;
+            if (obj) {
+                let activeType = '';
+                if (['bottle', 'cup'].includes(obj)) activeType = 'plastic';
+                else if (['can'].includes(obj)) activeType = 'metal';
+                else if (['apple', 'banana', 'orange', 'sandwich', 'carrot'].includes(obj)) activeType = 'organic';
+                else if (['book', 'paper'].includes(obj)) activeType = 'paper';
+
+                if (activeType) {
+                    const activeCard = document.getElementById(`card-${activeType}`);
+                    if (activeCard) {
+                        activeCard.classList.remove('border-slate-200');
+                        activeCard.classList.add('ring-4', 'ring-emerald-400', 'scale-105', 'transition-all', 'duration-300');
+                    }
+                }
+            }
+
+        } catch (e) {
+            console.error("Error fetching stats:", e);
+        }
+    }, 1000); // Update every second
+</script>
+{% endblock %}
